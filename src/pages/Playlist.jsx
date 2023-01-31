@@ -9,6 +9,7 @@ const Playlist = () => {
         sx={{
           width: "100%",
           display: "flex",
+          background: "linear-gradient(#121212, #Ff45)",
           justifyContent: "flex-start",
           alignItems: "center",
           gap: 3,
