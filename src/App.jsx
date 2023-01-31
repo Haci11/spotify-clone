@@ -5,7 +5,6 @@ import Dashboard from "./components/Dashboard";
 import Login from "./pages/Login";
 import { getAccessToken } from "./utils/getAccessToken";
 import { getAccessTokenFromStorage } from "./utils/getAccessTokenFromStorage";
-
 function App() {
   const [token, setToken] = useState("");
 
