@@ -3,7 +3,9 @@ import { Box, Divider } from "@mui/material";
 import { Link } from "react-router-dom";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import SidebarPlaylistItem from "./SidebarPlaylistItem";
+import { useSelector } from "react-redux";
 const Sidebar = () => {
+  const { albumList } = useSelector((state) => state.playlist);
   return (
     <Box
       sx={{
@@ -32,10 +34,9 @@ const Sidebar = () => {
         <Divider />
       </Box>
       <Box sx={{ flex: 1, overflowY: "auto" }}>
-        <SidebarPlaylistItem />
-        <SidebarPlaylistItem />
-        <SidebarPlaylistItem />
-        <SidebarPlaylistItem />
+        {albumList.map((album) => (
+          <SidebarPlaylistItem key={album.id} name={album.name} id={album.id} />
+        ))}
       </Box>
     </Box>
   );

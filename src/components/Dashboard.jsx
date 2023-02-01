@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Box } from "@mui/material";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useParams } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Home from "../pages/Home";
 import Playlist from "../pages/Playlist";
@@ -45,7 +45,10 @@ export default function Dashboard() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/library" element={<div>library</div>} />
-          <Route path="/playlist/:id" element={<Playlist />} />
+          <Route
+            path="/playlist/:id"
+            element={<Playlist spotifyApi={spotifyApi} />}
+          />
         </Routes>
       </Box>
       <img src="" alt="" />

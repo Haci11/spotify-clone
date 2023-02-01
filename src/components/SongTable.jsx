@@ -3,7 +3,7 @@ import { Box, Grid } from "@mui/material";
 import { AccessTimeRounded } from "@mui/icons-material";
 import SongRow from "./SongRow";
 
-const SongTable = () => {
+const SongTable = ({ songs, isLoading }) => {
   return (
     <Box p={{ xs: 3, md: 4 }}>
       <Grid
@@ -24,10 +24,13 @@ const SongTable = () => {
           <AccessTimeRounded sx={{ width: 20, height: 20 }} />
         </Grid>
       </Grid>
-      <SongRow />
-      <SongRow />
-      <SongRow />
-      <SongRow />
+      {isLoading
+        ? Array(20)
+            .fill(0)
+            .map((_, index) => <SongRow isLoading index={index} />)
+        : songs?.map((song, index) => (
+            <SongRow song={song.track} index={index} />
+          ))}
     </Box>
   );
 };
