@@ -1,134 +1,139 @@
-import React, { useEffect, useState } from 'react'
-import { Box, Grid, Avatar, Typography } from '@mui/material'
-import PlayerController from './PlayerController'
-import PlayerVolume from './PlayerVolume'
-import { getAccessTokenFromStorage } from '../utils/getAccessTokenFromStorage'
+import React, { useEffect, useState } from "react";
+import { Box, Grid, Avatar, Typography } from "@mui/material";
+import PlayerController from "./PlayerController";
+import PlayerVolume from "./PlayerVolume";
+import { getAccessTokenFromStorage } from "../utils/getAccessTokenFromStorage";
+import PlayerOverlay from "./PlayerOverlay";
 
 export default function Player({ spotifyApi }) {
-    const [localPlayer, setPlayer] = useState(null)
-    const [is_paused, setPaused] = useState(false)
-    const [current_track, setTrack] = useState(null)
-    const [device, setDevice] = useState(null)
-    const [duration, setDuration] = useState(null)
-    const [progress, setProgress] = useState(null)
-    const [playerOverlayIsOpen, setPlayerOverlayIsOpen] = useState(false)
+  const [localPlayer, setPlayer] = useState(null);
+  const [is_paused, setPaused] = useState(false);
+  const [current_track, setTrack] = useState(null);
+  const [device, setDevice] = useState(null);
+  const [duration, setDuration] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const [playerOverlayIsOpen, setPlayerOverlayIsOpen] = useState(false);
 
-    useEffect(() => {
-        const token = getAccessTokenFromStorage()
-        const script = document.createElement('script')
-        script.src = 'https://sdk.scdn.co/spotify-player.js'
-        script.async = true
-        document.body.appendChild(script)
+  useEffect(() => {
+    const token = getAccessTokenFromStorage();
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-        window.onSpotifyWebPlaybackSDKReady = () => {
-            const player = new window.Spotify.Player({
-                name: 'Techover player',
-                getOAuthToken: (cb) => {
-                    cb(token)
-                },
-                volume: 0.5,
-            })
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const player = new window.Spotify.Player({
+        name: "Techover player",
+        getOAuthToken: (cb) => {
+          cb(token);
+        },
+        volume: 0.5,
+      });
 
-            player.addListener('ready', ({ device_id }) => {
-                console.log('Ready with Device ID', { device_id, player })
-                setDevice(device_id)
-                setPlayer(player)
-            })
+      player.addListener("ready", ({ device_id }) => {
+        console.log("Ready with Device ID", { device_id, player });
+        setDevice(device_id);
+        setPlayer(player);
+      });
 
-            player.addListener('player_state_changed', (state) => {
-                if (!state || !state.track_window?.current_track) {
-                    return
-                }
-                console.log(state)
-                const duration_ms = state.track_window.current_track.duration_ms
-                const position_ms = state.position
-                setDuration(duration_ms)
-                setProgress(position_ms)
-                setTrack(state.track_window.current_track)
-                setPaused(state.paused)
-            })
-
-            setPlayer(player)
-            player.connect()
+      player.addListener("player_state_changed", (state) => {
+        if (!state || !state.track_window?.current_track) {
+          return;
         }
-    }, [])
+        console.log(state);
+        const duration_ms = state.track_window.current_track.duration_ms;
+        const position_ms = state.position;
+        setDuration(duration_ms);
+        setProgress(position_ms);
+        setTrack(state.track_window.current_track);
+        setPaused(state.paused);
+      });
 
-    useEffect(() => {
-        if (!localPlayer) return
-        localPlayer.connect()
-        return () => {
-            localPlayer.disconnect()
-        }
-    }, [localPlayer])
+      setPlayer(player);
+      player.connect();
+    };
+  }, []);
 
-    useEffect(() => {
-        const transferMyPlayback = async () => {
-            if (device) {
-                await spotifyApi.transferMyPlayback([device], true)
-            }
-        }
-        const getDeviceFromApi = async () => {
-            await spotifyApi.getMyDevices()
-        }
-        getDeviceFromApi()
-        transferMyPlayback()
-    }, [device, spotifyApi])
+  useEffect(() => {
+    if (!localPlayer) return;
+    localPlayer.connect();
+    return () => {
+      localPlayer.disconnect();
+    };
+  }, [localPlayer]);
 
-    if (!localPlayer || !current_track) return null
+  useEffect(() => {
+    const transferMyPlayback = async () => {
+      if (device) {
+        await spotifyApi.transferMyPlayback([device], true);
+      }
+    };
+    const getDeviceFromApi = async () => {
+      await spotifyApi.getMyDevices();
+    };
+    getDeviceFromApi();
+    transferMyPlayback();
+  }, [device, spotifyApi]);
 
-    return (
-        <Box>
-            <Grid
-                container
-                px={3}
-                sx={{
-                    height: 100,
-                    width: '100%',
-                    borderTop: '1px solid #292929',
-                    bgcolor: 'background.paper',
-                }}
-            >
-                <Grid
-                    item
-                    xs={3}
-                    sx={{ display: 'flex', alignItems: 'center' }}
-                >
-                    <Avatar
-                        src={current_track.album.images[0]?.url}
-                        variant='square'
-                        sx={{ width: 56, height: 56, marginRight: 2 }}
-                    />
-                    <Box>
-                        <Typography
-                            sx={{ color: 'text.primary', fontSize: 14 }}
-                        >
-                            {current_track?.name}
-                        </Typography>
-                        <Typography
-                            sx={{ color: 'text.secondary', fontSize: 12 }}
-                        >
-                            {current_track?.artists[0].name}
-                        </Typography>
-                    </Box>
-                </Grid>
-                <Grid
-                    item
-                    sx={{
-                        display: 'flex',
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <PlayerController
-                        progress={progress}
-                        is_paused={is_paused}
-                        duration={duration}
-                        player={localPlayer}
-                    />
-                </Grid>
-                <PlayerVolume player={localPlayer} />
-            </Grid>
-        </Box>
-    )
+  if (!localPlayer || !current_track) return null;
+
+  return (
+    <Box>
+      <Grid
+        container
+        px={3}
+        onClick={() => setPlayerOverlayIsOpen((c) => !c)}
+        sx={{
+          height: 100,
+          width: "100%",
+          borderTop: "1px solid #292929",
+          bgcolor: "background.paper",
+        }}>
+        <Grid
+          item
+          xs={12}
+          md={3}
+          sx={{ display: "flex", alignItems: "center" }}>
+          <Avatar
+            src={current_track.album.images[0]?.url}
+            variant="square"
+            sx={{ width: 56, height: 56, marginRight: 2 }}
+          />
+          <Box>
+            <Typography sx={{ color: "text.primary", fontSize: 14 }}>
+              {current_track?.name}
+            </Typography>
+            <Typography sx={{ color: "text.secondary", fontSize: 12 }}>
+              {current_track?.artists[0].name}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid
+          item
+          sx={{
+            display: { xs: "none", md: "flex" },
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          <PlayerController
+            progress={progress}
+            is_paused={is_paused}
+            duration={duration}
+            player={localPlayer}
+          />
+        </Grid>
+        <PlayerVolume player={localPlayer} />
+      </Grid>
+      <PlayerOverlay
+        playerOverlayIsOpen={playerOverlayIsOpen}
+        closeOverlay={() => setPlayerOverlayIsOpen(false)}
+        song={current_track}
+        is_paused={is_paused}
+        progress={progress}
+        duration={duration}
+        player={localPlayer}
+      />
+    </Box>
+  );
 }
