@@ -1,9 +1,8 @@
 import React from "react";
 import { Card, Grid, Avatar, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-const LibraryCard = (album) => {
+const LibraryCard = ({ album }) => {
   const navigate = useNavigate();
-  console.log(album);
 
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
@@ -18,11 +17,12 @@ const LibraryCard = (album) => {
         <Avatar
           src={album?.images?.[0]?.url}
           variant="square"
-          width={60}
-          height={60}
+          sx={{ width: "100%", height: "100%", aspectRatio: "1/1" }}
         />
 
-        <Typography sx={{ color: "text.primary", fontSize: 18 }}>
+        <Typography
+          sx={{ color: "text.primary", fontSize: 18, marginTop: 1 }}
+          noWrap>
           {album.name}
         </Typography>
         <Typography

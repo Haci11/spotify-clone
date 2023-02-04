@@ -5,7 +5,6 @@ import LibraryCard from "../components/LibraryCard";
 
 const Library = () => {
   const { albumList } = useSelector((state) => state.playlist);
-
   return (
     <Box
       p={3}
